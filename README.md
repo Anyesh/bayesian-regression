@@ -1,1 +1,1 @@
-# bayesian_regression
+# Bayesian Regression
