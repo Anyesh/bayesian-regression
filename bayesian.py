@@ -22,10 +22,10 @@ def generate_dataset(
     y = None
     if noise_std_dev == 0:
         y = slope * X + intercept
-        return (X, y)
     else:
         y = slope * X + intercept + np.random.normal(0, noise_std_dev, n_samples)
-        return (X, y)
+
+    return (X, y)
 
 
 # %%
@@ -92,8 +92,7 @@ class BayesianLinearRegression:
 
     def add_bias(self, features: np.ndarray) -> np.ndarray:
         phi_0 = np.ones(len(features))
-        full_feature_matrix = np.stack((phi_0, features), axis=1)
-        return full_feature_matrix
+        return np.stack((phi_0, features), axis=1)
 
     def predict(self, features: np.ndarray) -> np.ndarray:
 
@@ -105,8 +104,7 @@ class BayesianLinearRegression:
             + self.noise_var
         )
 
-        pred_posterior = univariate_normal(loc=pred_mean.flatten(), scale=pred_cov)
-        return pred_posterior
+        return univariate_normal(loc=pred_mean.flatten(), scale=pred_cov)
 
 
 # %%
@@ -176,9 +174,7 @@ for feat in test_features:
     all_labels.append(true_label)
     pred_posterior = model.predict(np.array([feat]))
     sample_predicted_labels = pred_posterior.rvs(size=sample_size)
-    for label in sample_predicted_labels:
-        all_rows.append([feat, label])
-
+    all_rows.extend([feat, label] for label in sample_predicted_labels)
 all_data = pd.DataFrame(all_rows, columns=["feature", "label"])
 sns.displot(data=all_data, x="feature", y="label")
 plt.scatter(x=test_features, y=all_labels, color="red", label="True values")
